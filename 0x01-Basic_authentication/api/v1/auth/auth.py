@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Authentication module for the API
+This module provides the base Auth class for handling API authentication.
 """
 from flask import request
 from typing import List, TypeVar
@@ -8,6 +9,11 @@ import re
 
 
 class Auth:
+    """
+    Auth class to manage API authentication
+    This class provides methods to handle authentication requirements,
+    process authorization headers, and manage user authentication.
+    """
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
         """
         Determines whether a given path requires authentication or not
@@ -40,7 +46,18 @@ class Auth:
 
     def authorization_header(self, request=None) -> str:
         """
-        Returns the Authorization header from a request object
+        Retrieves the Authorization header from a request object
+
+        Args:
+            request: Flask request object
+
+        Returns:
+            str: The value of the Authorization header if present,
+            None otherwise
+
+        This method extracts the Authorization header from
+        the given request object.
+        If the request is None or the header is not present, it returns None.
         """
         if request is None or 'Authorization' not in request.headers:
             return None
@@ -48,6 +65,16 @@ class Auth:
 
     def current_user(self, request=None) -> TypeVar('User'):
         """
-        Returns a User instance from information from a request object
+        Retrieves the current authenticated User based on the request
+
+        Args:
+            request: Flask request object
+
+        Returns:
+            TypeVar('User'): The authenticated User instance or None
+
+        This method is meant to be overridden by authentication-specific
+        subclasses.
+        In its base form, it always returns None.
         """
         return None

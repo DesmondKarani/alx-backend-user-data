@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """DB module
 This module provides a database interface for user management operations.
-It defines a DB class that handles database connections and user-related
-operations.
+It defines a DB class that handles database connections and
+user-related operations.
 """
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import InvalidRequestError
 
 from user import Base, User
 
@@ -49,7 +51,7 @@ class DB:
         """Add a new user to the database.
 
         This method creates a new user with the given email and hashed
-        password, adds it to the database, and returns the new User object.
+        password,adds it to the database, and returns the new User object.
 
         Args:
             email (str): The email of the user.
@@ -62,3 +64,27 @@ class DB:
         self._session.add(new_user)
         self._session.commit()
         return new_user
+
+    def find_user_by(self, **kwargs) -> User:
+        """Find a user in the database based on input arguments.
+
+        This method searches for a user in the database using the provided
+        keyword arguments as filters. It returns the first matching user.
+
+        Args:
+            **kwargs: Arbitrary keyword arguments to filter the search.
+
+        Returns:
+            User: The first user matching the search criteria.
+
+        Raises:
+            NoResultFound: If no user is found matching the criteria.
+            InvalidRequestError: If invalid query arguments are passed.
+        """
+        try:
+            user = self._session.query(User).filter_by(**kwargs).one()
+            return user
+        except NoResultFound:
+            raise NoResultFound()
+        except InvalidRequestError:
+            raise InvalidRequestError()
